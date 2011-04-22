@@ -1,0 +1,97 @@
+* DEFPACKAGE
+  add (:local-nickname (<nickname> <real-name>)+)
+  where nickname and real-name are package designators
+
+  REAL-NAME is always looked up in the global namespace,
+  so NICKNAME and REAL-NAME can be the same (not particularly usefully though)
+
+  NICKNAME can shadow names of other packages
+
+  ISSUE: should the syntax be (<real-name> <nickname>+) instead?
+  to allow defining multiple nicknames of a particular package at once
+
+  ISSUE: is :local-nickname a good name?
+  -- cl-package-aliases uses :alias, but has different semantics (no shadowing)
+  so probably better to avoid that
+  -- might be better to use something that is more obvious that it shadows
+  global names? :
+
+  ISSUE: should REAL-NAME be required to name a package when defpackage is evaluated?
+
+  ISSUE: can local nicknames be used as package designator within the same defpackage form?
+  if so, does it affect whole form?
+  probably does, since DEFPACKAGE CLHS says order of options is irrelevant,
+  so just add defining local nicknames as step before :shadowing-import-from
+  (so also before :use and :import-from)
+  -- :USEing a package that also has a nickname seems a bit pointless,
+  but unless it causes a problem somewhere probably shouldn't be disallowed,
+  so might as well allow :use by nickname if -from options accept it as well
+
+  ISSUE: can nicknames shadow full names of packages?
+  -- probably, depends on how print/read stuff is resolved
+
+  ISSUE: can nicknames shadow full name of real-name of other nicknames?
+  -- probably, but a less limiting constraint that forbidding any shadowing
+  of full names, in the case that symbols are printed with full-names
+  -- if they can't, creating a new package would have to check for
+  conflicts with existing aliases and signal an error
+
+  ISSUE: redefinition of package with changed nickname list
+  (probably should signal an error, or at least be documented as undefined
+  behavior (included in the 'stuff you shouldn't change between compile and runtime'
+  list in 3.2.4.4, symbol #2)
+
+  ISSUE: possibly add an option to ignore the standard :nicknames option?
+  -- might be useful when loading old libraries that define conflicting
+  nicknames? might tend to break things more often than it helps, since the
+  old libraries might depend on the nicknames being there anyway...
+
+  ISSUE: if *PACKAGE* has nicknames when defpackage is evaluated, should
+  defpackage ignore those nicknames?
+
+  ISSUE: are "CL" and "COMMON-LISP" valid nicknames?
+
+** exceptional situations
+*** signal an error (TODO: type of error?) when args can't be parsed
+    (no args is OK though?)
+*** signal error (TODO: type?) when same name is given for multiple nicknames
+    (ISSUE:should duplicated nickname+real-name pairs be allowed?)
+    (multiple different nicknames for 1 package is OK though)
+* FIND-PACKAGE
+  if *PACKAGE* is bound and has locally defined nicknames, check those
+  before global package namespace
+
+  if a local nickname is found, look up the corresponding real-name in the
+  global namespace
+
+  if no *package*, no local nicknames in *package*, or no match for requested
+  name in local nicknames, look up requested name in global namespace
+  as per CLHS
+
+  ISSUE: some way to look up name in global namespace ignoring local nicknames?
+** exceptional situations
+*** signal an error (TODO: type of error?) when name matches a local nickname but real-name does not name a package in global namespace
+* PRINT/READ
+  may need to print out symbols using local nicknames? (similarly to printing
+  out symbols in *package* without package prefix)
+
+  if another nickname shadows the real name of the symbol's package, printing
+  it with the full name won't work
+* *FEATURES*
+** :package-local-nicknames
+   included in *features* when this extension is available
+** :package-local-nicknames-only
+   not included in *features* by default, to be added by user code to
+   indicate that package-local-nickname aware libraries should not
+   define any global nicknames
+   (mainly intended for things that want to load lots of packages at once
+   for compatibility testing, or for use with a few particular classes
+   of libs like GL or JSON where it might be useful to use more than one
+   at once)
+* non-standard functions/etc
+** some way to list local nicknames of a specified package
+** some way to add local nicknames to a package
+** some way to remove/modify local nicknames?
+** FIND-PACKAGE-USING-PACKAGE ?
+** FIND-GLOBAL-PACKAGE ? (or a special option to FIND-PACKAGE ?)
+
