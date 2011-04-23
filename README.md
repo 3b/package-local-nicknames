@@ -24,7 +24,7 @@ be useful together, for example a NoSQL lib and a json-rpc lib.
 
 If users can easily add nicknames scoped to a specific package, library
 authors might be more willing to drop the convenient-but-conflicting
-global namespaces.
+global nicknames.
 
 ### differences from other options:
 
