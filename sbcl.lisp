@@ -101,11 +101,15 @@
 
 ;; todo: real API for this...
 (defun find-package-using-package (name package-designator &key (errorp t))
+  (when (packagep name)
+    (return-from find-package-using-package name))
+  (check-type name (or symbol string character) "package-designator")
   (let* ((package (if (packagep package-designator)
                       package-designator
                       (find-package package-designator)))
          (local-nicknames (gethash package *packages-with-local-nicknames*))
-         (real-name (when local-nicknames (gethash name local-nicknames)))
+         (real-name (when local-nicknames (gethash (string name)
+                                                   local-nicknames)))
          (real-package (when real-name (find-global-package real-name))))
     ;; should not finding a package be an error?
     (when (and real-name (not real-package) errorp)
@@ -118,10 +122,6 @@
 ;;; trying to redefine find-package tends to break things, so define it
 ;;; with another name and (setf fdefinition) later
 (defun find-package-pln (package-designator)
-  #++(format t "looking up package ~s in ~s~%"
-          package-designator
-          (when (boundp '*package*) *package*)
-          )
   (or (and (boundp '*package*)
            (find-package-using-package package-designator *package*))
       (find-global-package package-designator)))
