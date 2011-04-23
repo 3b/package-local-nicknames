@@ -40,7 +40,7 @@
            (type (or simple-string null) doc-string)
            ;;#-package-local-nicknames
            ;;(ignore local-nicknames)
-           #!-sb-package-locks
+           #-sb-package-locks
            (ignore implement lock))
   (with-package-graph ()
     (let* ((existing-package (find-package name))
@@ -118,7 +118,7 @@
 ;;; trying to redefine find-package tends to break things, so define it
 ;;; with another name and (setf fdefinition) later
 (defun find-package-pln (package-designator)
-  (format t "looking up package ~s in ~s~%"
+  #++(format t "looking up package ~s in ~s~%"
           package-designator
           (when (boundp '*package*) *package*)
           )
@@ -129,7 +129,7 @@
 
 (without-package-locks
   (defmacro defpackage (package &rest options)
-    #!+sb-doc
+    #+sb-doc
     #.(format nil
     "Defines a new package called PACKAGE. Each of OPTIONS should be one of the
     following: ~{~&~4T~A~}
@@ -143,12 +143,12 @@
                 (:import-from "<package-name> {symbol-name}*")
                 (:intern "{symbol-name}*")
                 (:export "{symbol-name}*")
-                #!+sb-package-locks (:implement "{package-name}*")
-                #!+sb-package-locks (:lock "boolean")
+                #+sb-package-locks (:implement "{package-name}*")
+                #+sb-package-locks (:lock "boolean")
                 ;;#!+package-local-nicknames
                 (:local-nicknames "(<nickname> <real-name>)*)")
                 (:documentation "doc-string"))
-              '(:size #!+sb-package-locks :lock))
+              '(:size #+sb-package-locks :lock))
     (let ((nicknames nil)
           (size nil)
           (shadows nil)
@@ -163,7 +163,7 @@
           (lock nil)
           (local-nicknames nil)
           (doc nil))
-      #!-sb-package-locks
+      #-sb-package-locks
       (declare (ignore implement-p))
       (dolist (option options)
         (unless (consp option)
@@ -214,14 +214,14 @@
           (:export
            (let ((new (stringify-string-designators (cdr option))))
              (setf exports (append exports new))))
-          #!+sb-package-locks
+          #+sb-package-locks
           (:implement
            (unless implement-p
              (setf implement nil))
            (let ((new (stringify-package-designators (cdr option))))
              (setf implement (append implement new)
                    implement-p t)))
-          #!+sb-package-locks
+          #+sb-package-locks
           (:lock
            (when lock
              (error 'simple-program-error
@@ -256,7 +256,7 @@
                           ',shadows ',shadowing-imports ',(if use-p use :default)
                           ',imports ',interns ',exports ',implement ',lock
                           ',local-nicknames ',doc
-                          (sb!c:source-location))))))
+                          (sb-c:source-location))))))
 
 (without-package-locks
  (setf (fdefinition 'find-package)
