@@ -50,6 +50,8 @@
   defpackage ignore those nicknames?
 
   ISSUE: are "CL" and "COMMON-LISP" valid nicknames?
+  ISSUE: what about "KEYWORD"?
+  if keyword is valid, should it affect :foo syntax?
 
 ** exceptional situations
 *** signal an error (TODO: type of error?) when args can't be parsed
@@ -77,6 +79,15 @@
 
   if another nickname shadows the real name of the symbol's package, printing
   it with the full name won't work
+
+  might need to print symbols with a global nickname if global name is
+  shadowed and no local nicknames in use for that package?
+  (and in that case, need to be careful to pick one that isn't shadowed)
+
+  not sure what happens if all of the nickname/names of a package are shadowed
+  print-unreadable-object or some implementation specific trick?
+  (use #. or one of the macro chars reserved for implementations?)
+
 * *FEATURES*
 ** :package-local-nicknames
    included in *features* when this extension is available
