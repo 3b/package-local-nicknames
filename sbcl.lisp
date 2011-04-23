@@ -59,7 +59,7 @@
               (when old-local-nicknames
                 (warn 'package-at-variance
                       :format-control "~A also has the following local nicknames: ~% ~{ ~S -> ~S ~}"
-                      :format-arguments (list name old-local-nicknames)))
+                      :format-arguments (cons name old-local-nicknames)))
               (set-package-local-nicknames existing-package local-nicknames)))
           (let ((package (make-package name
                                        :use nil
