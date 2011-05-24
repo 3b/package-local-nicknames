@@ -251,12 +251,20 @@
                       `(:shadow ,@shadows)
                       `(:shadowing-import-from
                         ,@(apply #'append (mapcar #'rest shadowing-imports))))
-      `(eval-when (:compile-toplevel :load-toplevel :execute)
-         (%defpackage-pln ,(stringify-string-designator package) ',nicknames ',size
-                          ',shadows ',shadowing-imports ',(if use-p use :default)
-                          ',imports ',interns ',exports ',implement ',lock
-                          ',local-nicknames ',doc
-                          (sb-c:source-location))))))
+      (if local-nicknames
+          `(eval-when (:compile-toplevel :load-toplevel :execute)
+             (%defpackage-pln ,(stringify-string-designator package)
+                              ',nicknames ',size ',shadows ',shadowing-imports
+                              ',(if use-p use :default) ',imports ',interns
+                              ',exports ',implement ',lock
+                              ',local-nicknames ',doc
+                              (sb-c:source-location)))
+          `(eval-when (:compile-toplevel :load-toplevel :execute)
+             (%defpackage ,(stringify-string-designator package) ',nicknames
+                          ',size ',shadows ',shadowing-imports
+                          ',(if use-p use :default) ',imports ',interns
+                          ',exports ',implement ',lock ',doc
+                          (sb-c:source-location)))))))
 
 (without-package-locks
  (setf (fdefinition 'find-package)
