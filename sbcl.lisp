@@ -261,3 +261,5 @@
 (without-package-locks
  (setf (fdefinition 'find-package)
        #'find-package-pln))
+
+(push :package-local-nicknames *features*)
