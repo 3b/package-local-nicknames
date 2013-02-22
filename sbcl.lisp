@@ -2,6 +2,9 @@
 
 #-sbcl (error "sbcl only for now...")
 
+#-package-local-nicknames
+(progn
+
 (in-package :sb-impl)
 
 
@@ -271,3 +274,5 @@
        #'find-package-pln))
 
 (push :package-local-nicknames *features*)
+
+) ;; #-package-local-nicknames PROGN
